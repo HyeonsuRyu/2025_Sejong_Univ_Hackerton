@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.log
+
+# Virtualenv / Poetry
+.env
+.venv/
+venv/
+env/
+
+# Django stuff
+*.sqlite3
+db.sqlite3
+media/
+staticfiles/
+static/
+*.pot
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Coverage / Testing
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
