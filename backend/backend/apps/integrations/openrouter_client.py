@@ -19,7 +19,7 @@ class OpenRouterClient:
             api_key=self.api_key,
         )
 
-    def generate_text(self, prompt, model="openai/gpt-4o", system_message="You are a helpful assistant."):
+    def generate_text(self, prompt, model="google/gemini-2.0-flash-exp:free", system_message="You are a helpful assistant."):
         try:
             response = self.client.chat.completions.create(
                 model=model,

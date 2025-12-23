@@ -30,7 +30,7 @@ def main():
         
         result = bot_default.generate_text(
             prompt="안녕? 너는 어떤 모델이니?", 
-            model="openai/gpt-4o-mini", # 테스트니까 저렴한 모델로
+            model="google/gemini-2.0-flash-exp:free", # 테스트니까 저렴한 모델로
             system_message="짧게 대답해."
         )
         print(f"결과: {result}\n")

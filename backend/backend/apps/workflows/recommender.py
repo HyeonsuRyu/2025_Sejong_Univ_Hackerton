@@ -36,11 +36,10 @@ def get_recommendation(task_description):
     user_prompt = f"다음 과제를 분석해서 3가지 맞춤형 도구를 추천해줘: {task_description}"
 
     try:
-        # 분석은 가장 똑똑한 모델(GPT-4o)이 수행합니다. (서버 비용)
         raw_response = client.generate_text(
             prompt=user_prompt, 
             system_message=system_message,
-            model="openai/gpt-4o"
+            model="google/gemini-2.0-flash-exp:free"
         )
         
         json_str = raw_response.strip().replace("```json", "").replace("```", "")
