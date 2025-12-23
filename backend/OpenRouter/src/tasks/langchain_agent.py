@@ -13,13 +13,15 @@ from langgraph.graph import StateGraph, START, END
 # [Import 경로 안전 처리]
 # ------------------------------------------------------------------
 try:
-    from src.workflows.recommender import get_recommendation 
-    from src.workflows.workflow import WorkflowEngine 
-    from src.workflows.prompts import AGENT_SYSTEM_PROMPT 
+    # src 폴더가 sys.path에 있을 때 (run_test.py 실행 시)
+    from workflows.recommender import get_recommendation 
+    from workflows.workflow import WorkflowEngine 
+    from workflows.prompts import AGENT_SYSTEM_PROMPT 
 except ImportError:
+    # 프로젝트 루트(backend)에서 실행하거나 전체 경로가 필요할 때
     from src.workflows.recommender import get_recommendation 
     from src.workflows.workflow import WorkflowEngine 
-    from src.workflows.prompts import AGENT_SYSTEM_PROMPT 
+    from src.workflows.prompts import AGENT_SYSTEM_PROMPT
 
 # ==================================================================
 # 1. 도구(Tools) 정의

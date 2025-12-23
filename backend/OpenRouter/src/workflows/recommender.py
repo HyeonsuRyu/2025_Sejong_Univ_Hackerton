@@ -1,6 +1,9 @@
 # backend/apps/workflows/recommender.py
 import json
-from src.integrations.openrouter_client import OpenRouterClient
+try:
+    from integrations.openrouter_client import OpenRouterClient
+except ImportError:
+    from src.integrations.openrouter_client import OpenRouterClient
 
 def get_recommendation(task_description):
     client = OpenRouterClient()
