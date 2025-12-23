@@ -1,6 +1,6 @@
 # backend/apps/workflows/recommender.py
 import json
-from src.integrations.openrouter_client import OpenRouterClient
+from OpenRouter.src.integrations.openrouter_client import OpenRouterClient
 
 def get_recommendation(task_description):
     client = OpenRouterClient()
@@ -39,7 +39,7 @@ def get_recommendation(task_description):
         raw_response = client.generate_text(
             prompt=user_prompt, 
             system_message=system_message,
-            model="google/gemini-2.0-flash-exp:free"
+            model="openai/gpt-4o-mini"
         )
         
         json_str = raw_response.strip().replace("```json", "").replace("```", "")

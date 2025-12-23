@@ -8,18 +8,19 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AnyMessage, ToolMessage
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, START, END
+from .session_store import get_history, update_history
 
 # ------------------------------------------------------------------
 # [Import 경로 안전 처리]
 # ------------------------------------------------------------------
 try:
-    from src.workflows.recommender import get_recommendation 
-    from src.workflows.workflow import WorkflowEngine 
-    from src.workflows.prompts import AGENT_SYSTEM_PROMPT 
+    from OpenRouter.src.workflows.recommender import get_recommendation 
+    from OpenRouter.src.workflows.workflow import WorkflowEngine 
+    from OpenRouter.src.workflows.prompts import AGENT_SYSTEM_PROMPT 
 except ImportError:
-    from src.workflows.recommender import get_recommendation 
-    from src.workflows.workflow import WorkflowEngine 
-    from src.workflows.prompts import AGENT_SYSTEM_PROMPT 
+    from OpenRouter.src.workflows.recommender import get_recommendation 
+    from OpenRouter.src.workflows.workflow import WorkflowEngine 
+    from OpenRouter.src.workflows.prompts import AGENT_SYSTEM_PROMPT 
 
 # ==================================================================
 # 1. 도구(Tools) 정의
@@ -60,13 +61,11 @@ class AgentState(TypedDict):
 # ==================================================================
 
 # OpenRouter 모델 설정 + 도구 바인딩 (bind_tools)
-llm = ChatOpenAI(
-    model="google/gemini-2.0-flash-exp:free",
-    api_key=os.getenv("OPENROUTER_API_KEY"),
-    base_url="https://openrouter.ai/api/v1",
-    temperature=0
-)
-model_with_tools = llm.bind_tools(tools)
+def create_llm(api_key: str, model: str = "openai/gpt-4o-mini"):
+    return ChatOpenAI(model=model,
+                      api_key=api_key,
+                      base_url="https://openrouter.ai/api/v1",
+                      temperature=0 )
 
 def llm_call_node(state: AgentState):
     """
@@ -121,8 +120,16 @@ def should_continue(state: AgentState) -> Literal["tool_node", END]:
 # ==================================================================
 # 4. 그래프(Graph) 빌드
 # ==================================================================
-def setup_graph():
+def setup_graph(llm):
     workflow = StateGraph(AgentState)
+
+    model_with_tools = llm.bind_tools(tools)
+    def llm_call_node(state: AgentState):
+        messages = state["messages"]
+        if not isinstance(messages[0], SystemMessage):
+            messages = [SystemMessage(content=AGENT_SYSTEM_PROMPT)] + messages
+        response = model_with_tools.invoke(messages)
+        return {"messages": [response]}
 
     # 노드 추가
     workflow.add_node("llm_node", llm_call_node)
@@ -146,16 +153,23 @@ def setup_graph():
 # ==================================================================
 # 5. 실행 함수
 # ==================================================================
-def run_task_analysis(user_input: str, history: list = []):
+def run_task_analysis(user_input: str, session_id: str, api_key: str):
     try:
-        agent = setup_graph()
+        llm = create_llm(api_key)
+        agent = setup_graph(llm)
         
-        # 이전 대화 기록 + 현재 질문
+        # 세션별 history 불러오기
+        history = get_history(session_id)
+
+        # 현재 입력 추가
         current_messages = history + [HumanMessage(content=user_input)]
-        
+
         # 그래프 실행
         result = agent.invoke({"messages": current_messages})
-        
+
+        # 결과 메시지 업데이트
+        update_history(session_id, result["messages"])
+
         # 최종 답변 반환
         return result["messages"][-1].content
 
