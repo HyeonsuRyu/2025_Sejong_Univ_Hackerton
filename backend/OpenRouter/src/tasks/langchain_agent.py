@@ -1,11 +1,11 @@
-# backend/apps/tasks/langchain_agent.py
+'''# backend/apps/tasks/langchain_agent.py
 import os
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.tools import tool
-from apps.workflows.recommender import get_recommendation 
-from apps.workflows.prompts import AGENT_SYSTEM_PROMPT 
+from src.workflows.recommender import get_recommendation 
+from src.workflows.prompts import AGENT_SYSTEM_PROMPT 
 
 @tool
 def assignment_analyzer(description: str):
@@ -36,4 +36,4 @@ def setup_agent():
 def run_task_analysis(user_input):
     executor = setup_agent()
     result = executor.invoke({"input": user_input})
-    return result["output"]
+    return result["output"]'''
