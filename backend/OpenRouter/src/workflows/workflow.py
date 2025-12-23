@@ -1,7 +1,7 @@
 # backend/apps/workflows/workflow.py
 import json
 import concurrent.futures
-from src.integrations.openrouter_client import OpenRouterClient
+from OpenRouter.src.integrations.openrouter_client import OpenRouterClient
 
 class WorkflowEngine:
     def __init__(self, user_api_key=None):

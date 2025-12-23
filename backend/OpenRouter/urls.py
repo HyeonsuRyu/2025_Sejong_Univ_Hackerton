@@ -1,6 +1,6 @@
-from django.urls import path, include
-from .views import GenerateTextView
+from django.urls import path
+from .views import TaskAnalysisView
 
 urlpatterns = [
-    path('request/', GenerateTextView.as_view(), name='openrouter-request'),
+    path("analyze/", TaskAnalysisView.as_view(), name="task-analysis"),
 ]
