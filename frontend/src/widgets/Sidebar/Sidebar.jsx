@@ -1,5 +1,7 @@
 import React from "react";
 import styles from "./Sidebar.module.css";
+import { useNavigate } from "react-router-dom";
+
 
 function IconGrid() {
     return (
@@ -25,7 +27,38 @@ function IconChat() {
     );
 }
 
+function isLoggedIn() {
+    // 토큰방식으로 바꿔야됨
+    return Boolean(localStorage.getItem("ub_token"));
+}
+
+
+function IconUser() {
+    return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path
+                d="M20 21c0-3.314-3.582-6-8-6s-8 2.686-8 6"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+            />
+            <path
+                d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"
+                stroke="currentColor"
+                strokeWidth="1.6"
+            />
+        </svg>
+    );
+}
+
 export default function Sidebar() {
+    const navigate = useNavigate();
+
+    const handleProfileClick = () => {
+        if (isLoggedIn()) navigate("/profile");
+        else navigate("/login");
+    };
+
     return (
         <div className={styles.root}>
             <div className={styles.brand}>UB</div>
@@ -36,6 +69,19 @@ export default function Sidebar() {
                 </button>
                 <button className={styles.iconBtn} type="button" aria-label="Chat">
                     <IconChat />
+                </button>
+
+                {/* 아래로 밀어내서 하단 고정 */}
+                <div className={styles.spacer} />
+
+                <button
+                    className={styles.iconBtn}
+                    type="button"
+                    aria-label="Profile"
+                    onClick={handleProfileClick}
+                    title={isLoggedIn() ? "Profile" : "login"}
+                >
+                    <IconUser />
                 </button>
             </div>
         </div>

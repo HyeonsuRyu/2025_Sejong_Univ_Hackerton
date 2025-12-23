@@ -19,4 +19,6 @@ If you are developing a production application, we recommend using TypeScript wi
 ******지금 
 src/widgets/ChatThread/ChatThread.jsx 
 src/widgets/ChatComposer/ChatComposer.jsx 임시입니다. 
+쳇페이지로 한번에 임시로 구현하고 통신문제없으면 개발예정
 사이드바 ui수정필요.
+api키 관리방법 설계 필요
