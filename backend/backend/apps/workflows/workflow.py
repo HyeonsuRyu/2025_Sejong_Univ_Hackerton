@@ -4,8 +4,8 @@ import concurrent.futures
 from backend.apps.integrations.openrouter_client import OpenRouterClient
 
 class WorkflowEngine:
-    def __init__(self):
-        self.client = OpenRouterClient()
+    def __init__(self, user_api_key=None):
+        self.client = OpenRouterClient(user_api_key=user_api_key)
 
     # selected_model을 받아서 실행하고, 프롬프트까지 반환
     def expand_step_content(self, task_description: str, step_info: dict, selected_model: str) -> dict:

@@ -6,16 +6,17 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class OpenRouterClient:
-    def __init__(self):
-        # .env에서 OPENROUTER_API_KEY를 가져옵니다.
-        api_key = os.getenv("OPENROUTER_API_KEY")
-        if not api_key:
-            raise ValueError("OPENROUTER_API_KEY가 .env 파일에 없습니다!")
+    def __init__(self, user_api_key=None):
+        # 유저가 키를 주면 그걸 사용, 안주면 .env 키 사용
+        self.api_key = user_api_key if user_api_key else os.getenv("OPENROUTER_API_KEY")
+        
+        if not self.api_key:
+            raise ValueError("API Key가 없습니다. .env를 확인하거나 키를 입력해주세요.")
             
-        # 핵심: OpenRouter 주소(base_url) 설정
+        # OpenRouter 주소(base_url) 설정    
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key=api_key,
+            api_key=self.api_key,
         )
 
     def generate_text(self, prompt, model="openai/gpt-4o", system_message="You are a helpful assistant."):
@@ -26,7 +27,7 @@ class OpenRouterClient:
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt}
                 ],
-                # OpenRouter 랭킹 집계를 위한 헤더 (선택사항이지만 권장)
+                # OpenRouter 랭킹 집계를 위한 헤더
                 extra_headers={
                     "HTTP-Referer": "http://localhost:8000", 
                     "X-Title": "Student AI Agent",
