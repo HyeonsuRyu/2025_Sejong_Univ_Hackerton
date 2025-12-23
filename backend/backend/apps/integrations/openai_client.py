@@ -20,6 +20,6 @@ class OpenAIClient:
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7 # 추천 로직에는 약간의 창의성이 필요할 수 있음
+            temperature=0.7 # (0.0 ~ 0.3): 정확하고 보수적, (0.5 ~ 0.7): 밸런스, (0.8 ~ 1.0+): 매우 창의적
         )
         return response.choices[0].message.content

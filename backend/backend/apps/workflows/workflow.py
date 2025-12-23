@@ -55,12 +55,24 @@ class WorkflowEngine:
 
     def process_full_workflow(self, task_description: str, workflow_steps: list) -> list:
         """
-        추천된 전체 워크플로우(리스트)를 받아서, 모든 단계의 상세 내용을 한 번에 생성합니다.
-        (시간이 좀 걸릴 수 있으므로 비동기 처리를 권장합니다)
+        병렬 처리(Thread)를 사용하여 모든 단계의 상세 내용을 동시에 생성합니다.
+        속도가 N배 빨라집니다.
         """
         detailed_workflow = []
-        for step in workflow_steps:
-            detailed_step = self.expand_step_content(task_description, step)
-            detailed_workflow.append(detailed_step)
+        
+        # ThreadPoolExecutor를 사용하여 병렬 실행
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            # 각 단계별로 작업을 등록 (Future 객체 생성)
+            # lambda를 쓰거나, map을 쓸 수도 있지만 가독성을 위해 리스트 컴프리헨션 사용
+            future_to_step = {
+                executor.submit(self.expand_step_content, task_description, step): step 
+                for step in workflow_steps
+            }
+            
+            # 작업이 완료되는 대로 결과를 수집 (순서 보장을 위해 순차적으로 접근하는 방법도 있지만, 여기선 단순 수집)
+            # 순서를 보장하려면 map을 쓰는 것이 좋습니다.
+            results = executor.map(lambda step: self.expand_step_content(task_description, step), workflow_steps)
+            
+            detailed_workflow = list(results)
         
         return detailed_workflow
