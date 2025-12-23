@@ -13,9 +13,9 @@ def assignment_analyzer(description: str):
     return get_recommendation(description)
 
 def setup_agent():
-    # OpenRouter를 사용하도록 설정 변경
+    # OpenRouter에서 사용
     llm = ChatOpenAI(
-        model="openai/gpt-4o", # OpenRouter 모델명 (또는 anthropic/claude-3.5-sonnet)
+        model="google/gemini-2.0-flash-exp:free", # OpenRouter 모델명 (GPTmodel은 model="openai/gpt-4o",)
         openai_api_key=os.getenv("OPENROUTER_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1", # 핵심: 주소 변경
         temperature=0
