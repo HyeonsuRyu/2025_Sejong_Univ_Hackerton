@@ -1,0 +1,18 @@
+:root {
+    --bg: #FAF8F3;
+    /* 전체 배경(크림) */
+    --sidebar-bg: #FAF8F3;
+    /* 사이드바 배경 */
+    --surface: #F3F4FA;
+    /* 입력 카드 배경(연한 회보라) */
+    --border: #E6E2D8;
+    /* 얇은 테두리 */
+    --text: #111111;
+    --primary: #4C63FF;
+    /* Uni_Brain / 버튼 파랑 */
+
+    --radius-lg: 10px;
+    --radius-md: 8px;
+
+    --sidebar-w: 56px;
+}

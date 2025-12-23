@@ -1,0 +1,15 @@
+.wrap {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /*타이틀위치조정*/
+    gap: 14px;
+}
+
+.title {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 18px;
+}
