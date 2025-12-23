@@ -1,0 +1,162 @@
+/* src/pages/Login/LoginPage.module.css */
+
+.page {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    gap:14px;
+    padding: 24px;
+    background: #FAF8F3;
+}
+
+.stack {
+    display: flex;
+    width: 420px;
+    flex-direction: column;
+    align-items: flex-start;
+    
+}
+
+.brandTop {
+    margin: 0 0 12px 0;
+    align-self: flex-start;
+    font-size: 26px;
+    font-weight: 900;
+    color: #4B5DFF
+}
+.card {
+    width: 100%;
+    max-width: 420px;
+    background: #ffffff;
+    border: 1px solid #E6E2D8;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 14px 40px rgba(15, 23, 42, 0.10);
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+}
+
+.brandName {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: #4B5DFF;
+    letter-spacing: 0.2px;
+}
+
+.title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #4B5DFF;
+}
+
+.headerRow {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 14px;
+}
+
+.registerLink {
+    font-size: 13px;
+    font-weight: 700;
+    color: #4B5DFF;
+    text-decoration: none;
+}
+
+.registerLink:hover {
+    text-decoration: underline;
+}
+.subtitle {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.72);
+}
+
+.input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    background: rgba(79, 96, 245, 0.06);
+    color: #0f172a;
+    outline: none;
+}
+
+.input::placeholder {
+    color: rgba(15, 23, 42, 0.45);
+}
+
+.input:focus {
+    border-color: rgba(79, 96, 245, 0.65);
+    box-shadow: 0 0 0 3px rgba(79, 96, 245, 0.18);
+}
+
+.error {
+    margin: 0;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    background: rgba(239, 68, 68, 0.12);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+}
+
+.button {
+    margin-top: 4px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 0;
+    background: rgba(99, 102, 241, 0.95);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.hintRow {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.link {
+    color: rgba(165, 180, 252, 0.95);
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
