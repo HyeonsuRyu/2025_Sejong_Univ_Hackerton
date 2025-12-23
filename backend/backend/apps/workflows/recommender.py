@@ -3,40 +3,42 @@ import json
 from backend.apps.integrations.openrouter_client import OpenRouterClient
 
 def get_recommendation(task_description):
-    # 1. 클라이언트 생성
     client = OpenRouterClient()
     
-    # 2. 구조화된 응답을 받기 위한 페르소나와 제약조건 설정
+    # 3가지 버전(무료, 성능, 가성비)으로 추천
     system_message = """
-    당신은 과제 솔루션 아키텍트입니다. 사용자의 과제를 분석하여 JSON 형식으로만 응답하세요.
-    응답에는 반드시 다음 키가 포함되어야 합니다:
-    1. 'category': 과제 유형 (예: '데이터 분석', '문학 레포트', '웹 프로그래밍' 등)
-    2. 'recommended_model': 가장 적합한 모델 (OpenAI gpt-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro 중 택 1)
-    3. 'reason': 해당 모델을 추천하는 이유
-    4. 'workflow': 작업을 완료하기 위한 상세 단계 리스트 (각 단계는 'step'과 'desc' 포함)
+    당신은 'AI 도구 큐레이션 전문가'입니다. 사용자의 과제를 분석하여 JSON 형식으로만 응답하세요.
+    
+    반드시 다음 3가지 카테고리로 나누어 도구를 추천해야 합니다:
+    1. 'free_ver': 비용 없는 무료 버전 (예: ChatGPT Free, Gemini, HuggingFace 등)
+    2. 'performance_ver': 성능 최상 버전 (비용 무관, 예: GPT-4o, Claude 3.5 Opus 등)
+    3. 'cost_efficiency_ver': 가성비 버전 (적당한 성능과 저렴한 비용, 예: Claude 3 Haiku, GPT-4o-mini 등)
+
+    응답 JSON 구조:
+    {
+        "task_analysis": "과제 내용 요약",
+        "recommendations": {
+            "free_ver": {"model": "모델명(OpenRouter ID)", "reason": "이유"},
+            "performance_ver": {"model": "모델명(OpenRouter ID)", "reason": "이유"},
+            "cost_efficiency_ver": {"model": "모델명(OpenRouter ID)", "reason": "이유"}
+        },
+        "initial_workflow": [{"step": "1단계", "desc": "설명"}, ...]
+    }
     """
 
-    user_prompt = f"다음 과제를 분석해서 최적의 실행 계획을 세워줘: {task_description}"
+    user_prompt = f"다음 과제를 분석해서 3가지 맞춤형 도구를 추천해줘: {task_description}"
 
     try:
-        # 3. OpenRouter 클라이언트를 통해 분석 요청
-        raw_response = client.generate_text(user_prompt, system_message=system_message)
+        # Agent 1은 GPT가 분석을 담당합니다.
+        raw_response = client.generate_text(
+            prompt=user_prompt, 
+            system_message=system_message,
+            model="openai/gpt-4o"
+        )
         
-        if not raw_response:
-            raise ValueError("AI 응답이 비어있습니다.")
-
-        # 4. 문자열 응답을 Python 딕셔너리로 변환
         json_str = raw_response.strip().replace("```json", "").replace("```", "")
-        recommendation_data = json.loads(json_str)
-        
-        return recommendation_data
+        return json.loads(json_str)
 
     except Exception as e:
-        # 에러 발생 시 기본 구조 반환 (시스템 안정성 확보)
-        print(f"Recommender Error: {e}")
-        return {
-            "category": "분석 실패",
-            "recommended_model": "openai/gpt-4o",
-            "reason": f"분석 중 오류가 발생했습니다: {str(e)}",
-            "workflow": [{"step": "수동 확인", "desc": "과제 내용을 다시 확인해 주세요."}]
-        }
+        print(f"추천 에러: {e}")
+        return {"error": str(e)}
