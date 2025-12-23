@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class OpenRouterClient:
-    def __init__(self, user_api_key=None):
+    def __init__(self, user_api_key="dummy"):
         # 유저가 키를 주면 그걸 사용, 안주면 .env 키 사용
         self.api_key = user_api_key if user_api_key else os.getenv("OPENROUTER_API_KEY")
         
@@ -29,7 +29,7 @@ class OpenRouterClient:
                 ],
                 # OpenRouter 랭킹 집계를 위한 헤더
                 extra_headers={
-                    "HTTP-Referer": "http://localhost:8000", 
+                    #"HTTP-Referer": "http://localhost:8000", 
                     "X-Title": "Student AI Agent",
                 },
                 temperature=0.7

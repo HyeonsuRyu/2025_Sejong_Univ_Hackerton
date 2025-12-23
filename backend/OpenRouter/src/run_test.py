@@ -15,7 +15,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
 django.setup()
 
 # 2. 클라이언트 가져오기
-from apps.integrations.openrouter_client import OpenRouterClient
+from src.integrations.openrouter_client import OpenRouterClient
 
 def main():
     print("[OpenRouterClient 기능 테스트 시작]\n")
