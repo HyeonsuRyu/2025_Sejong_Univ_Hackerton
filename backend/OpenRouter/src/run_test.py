@@ -1,85 +1,68 @@
-# run_test.py
+# backend/OpenRouter/src/run_test.py
 import os
 import sys
 import django
 
-# ------------------------------------------------------------------
-# [경로 자동 보정]
-# 현재 파일이 어디에 있든, 'manage.py'가 있는 프로젝트 루트를 찾아냅니다.
-# ------------------------------------------------------------------
-current_file_path = os.path.abspath(__file__)
+# 1. 경로 설정: 현재 파일 기준 최상위 프로젝트 루트 찾기
+# 현재 위치: backend/OpenRouter/src/run_test.py
+current_dir = os.path.dirname(os.path.abspath(__file__)) # src
+openrouter_dir = os.path.dirname(current_dir)             # OpenRouter
+project_root = os.path.dirname(openrouter_dir)          # 최상위 backend
 
-# 1. 현재 폴더 (src)
-current_dir = os.path.dirname(current_file_path)
-
-# 2. 상위 폴더들로 올라가며 'backend' 패키지가 있는 루트 찾기
-# (OpenRouter/src -> OpenRouter -> backend 순으로 올라감)
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))
-
-# 3. 프로젝트 루트를 파이썬 경로에 추가 (이제 backend.settings를 찾을 수 있음!)
+# 최상위 폴더를 경로 맨 앞에 추가하여 'backend.settings'를 찾을 수 있게 함
 if project_root not in sys.path:
-    sys.path.append(project_root)
+    sys.path.insert(0, project_root)
 
-# ------------------------------------------------------------------
-# Django 설정
-# ------------------------------------------------------------------
+# src 폴더도 추가하여 내부 모듈(tasks, workflows)을 찾게 함
+if current_dir not in sys.path:
+    sys.path.insert(0, current_dir)
+
+# 2. Django 환경 설정
+# 프로젝트 루트가 추가되었으므로 'backend.settings'를 패키지로 인식합니다.
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
-django.setup()
 
-# ------------------------------------------------------------------
-# Import (경로가 잡혔으므로 이제 안전하게 import 가능)
-# ------------------------------------------------------------------
 try:
-    from integrations.openrouter_client import OpenRouterClient
-except ImportError:
-    # 혹시 폴더 구조가 다른 경우를 대비
-    try:
-        from src.integrations.openrouter_client import OpenRouterClient
-    except ImportError:
-        # 마지막 시도: backend.apps...
-        from src.integrations.openrouter_client import OpenRouterClient
+    django.setup()
+except Exception as e:
+    print(f"❌ Django 설정 실패: {e}")
+    print(f"현재 sys.path: {sys.path}")
+    sys.exit(1)
+
+# 3. 에이전트 가져오기 (src가 path에 있으므로 직접 참조 가능)
+try:
+    from tasks.langchain_agent import run_task_analysis
+    from langchain_core.messages import HumanMessage, AIMessage
+except ImportError as e:
+    print(f"❌ Import 실패: {e}")
+    sys.exit(1)
 
 def main():
-    print(f"🚀 [OpenRouterClient 기능 테스트 시작]")
+    print(f"🚀 [LangGraph 통합 에이전트 테스트 시작]")
     print(f"📂 인식된 프로젝트 루트: {project_root}\n")
 
-    # ==========================================
-    # [TEST 1] 기본 모드 (.env 서버 키 사용)
-    # ==========================================
-    print("🔵 [TEST 1] 기본 키(.env) 사용 테스트")
+    chat_history = []
+
+    # [STEP 1] 과제 분석
+    print("🔵 [STEP 1] 과제 분석 및 추천 테스트")
+    user_input_1 = "파이썬 성적 계산기 과제 분석해줘."
     try:
-        bot_default = OpenRouterClient() 
-        result = bot_default.generate_text(
-            prompt="안녕? 너는 어떤 모델이니?", 
-            model="google/gemini-2.0-flash-exp:free",
-            system_message="짧게 대답해."
-        )
-        print(f"✅ 결과: {result}\n")
+        response_1 = run_task_analysis(user_input_1, chat_history)
+        print(f"🤖 AI 분석 결과:\n{response_1}\n")
+        
+        chat_history.append(HumanMessage(content=user_input_1))
+        chat_history.append(AIMessage(content=response_1))
     except Exception as e:
-        print(f"❌ TEST 1 실패: {e}\n")
+        print(f"❌ STEP 1 실패: {e}")
+        return
 
-    # ==========================================
-    # [TEST 2] BYOK 모드 (유저 키 사용)
-    # ==========================================
-    print("🟠 [TEST 2] 유저 입력 키(BYOK) 사용 테스트")
-    fake_user_key = "sk-or-v1-fake-key-for-testing"
-    print(f"👉 테스트용 가짜 키 입력: {fake_user_key}")
-
+    # [STEP 2] 실행 가이드
+    print("🟠 [STEP 2] 상세 실행 가이드 테스트")
+    user_input_2 = "가성비 모델로 1단계 가이드 작성해줘."
     try:
-        bot_user = OpenRouterClient(user_api_key=fake_user_key)
-        bot_user.generate_text(
-            prompt="이 요청은 실패해야 해.",
-            model="google/gemini-2.0-flash-exp:free",
-        )
-        print("❌ 실패: 에러가 안 났습니다. (가짜 키인데 성공하면 안 됨)")
+        response_2 = run_task_analysis(user_input_2, chat_history)
+        print(f"🤖 AI 실행 가이드:\n{response_2}\n")
     except Exception as e:
-        if "401" in str(e) or "AuthenticationError" in str(e):
-            print(f"✅ 성공: 예상대로 인증 에러가 발생했습니다.")
-        else:
-            print(f"⚠️ 다른 에러 발생: {e}")
-
-    print("\n==========================================")
-    print("테스트 종료")
+        print(f"❌ STEP 2 실패: {e}")
 
 if __name__ == "__main__":
     main()
