@@ -1,11 +1,12 @@
 # backend/apps/workflows/recommender.py
 import json
-from backend.apps.integrations.openai_client import OpenAIClient
+from backend.apps.integrations.openrouter_client import OpenRouterClient
 
 def get_recommendation(task_description):
-    client = OpenAIClient()
+    # 1. 클라이언트 생성
+    client = OpenRouterClient()
     
-    # 1. 구조화된 응답을 받기 위한 페르소나와 제약조건 설정
+    # 2. 구조화된 응답을 받기 위한 페르소나와 제약조건 설정
     system_message = """
     당신은 과제 솔루션 아키텍트입니다. 사용자의 과제를 분석하여 JSON 형식으로만 응답하세요.
     응답에는 반드시 다음 키가 포함되어야 합니다:
@@ -18,11 +19,13 @@ def get_recommendation(task_description):
     user_prompt = f"다음 과제를 분석해서 최적의 실행 계획을 세워줘: {task_description}"
 
     try:
-        # 2. OpenAI 클라이언트를 통해 분석 요청
+        # 3. OpenRouter 클라이언트를 통해 분석 요청
         raw_response = client.generate_text(user_prompt, system_message=system_message)
         
-        # 3. 문자열 응답을 Python 딕셔너리로 변환
-        # (만약 모델이 ```json ... ``` 형태로 감싸서 보내더라도 처리할 수 있도록 정제)
+        if not raw_response:
+            raise ValueError("AI 응답이 비어있습니다.")
+
+        # 4. 문자열 응답을 Python 딕셔너리로 변환
         json_str = raw_response.strip().replace("```json", "").replace("```", "")
         recommendation_data = json.loads(json_str)
         
@@ -30,9 +33,10 @@ def get_recommendation(task_description):
 
     except Exception as e:
         # 에러 발생 시 기본 구조 반환 (시스템 안정성 확보)
+        print(f"Recommender Error: {e}")
         return {
             "category": "분석 실패",
-            "recommended_model": "gpt-4o",
+            "recommended_model": "openai/gpt-4o",
             "reason": f"분석 중 오류가 발생했습니다: {str(e)}",
             "workflow": [{"step": "수동 확인", "desc": "과제 내용을 다시 확인해 주세요."}]
         }

@@ -1,24 +1,19 @@
+# backend/apps/workflows/workflow.py
 import json
-from backend.apps.integrations.openai_client import OpenAIClient
-# 나중에 prompts.py가 완성되면 거기서 가져오도록 리팩토링 가능
-from backend.apps.workflows.prompts import WORKFLOW_EXPANSION_PROMPT
+import concurrent.futures
+from backend.apps.integrations.openrouter_client import OpenRouterClient
 
 class WorkflowEngine:
     def __init__(self):
-        # 상황에 따라 GeminiClient, AnthropicClient 등으로 교체 가능하도록 설계
-        self.client = OpenAIClient()
+        self.client = OpenRouterClient()
 
     def expand_step_content(self, task_description: str, step_info: dict) -> dict:
-        """
-        특정 단계(Step)에 대한 상세 가이드(실천 팁, 예시 코드, 체크리스트)를 생성합니다.
-        """
         step_title = step_info.get("step", "")
         step_desc = step_info.get("desc", "")
 
-        # 1. 상세 가이드 생성을 위한 프롬프트 구성
         system_message = """
         당신은 실무 멘토입니다. 사용자의 과제와 현재 진행 단계를 보고, 
-        실제로 수행할 수 있는 구체적인 'Action Item'과 'Tip'을 JSON으로 제공하세요.
+        구체적인 'Action Item'과 'Tip'을 JSON으로 제공하세요.
         반드시 다음 키를 포함하세요:
         - "detailed_guide": 구체적인 설명
         - "checklist": ["할일1", "할일2"] 형태의 리스트
@@ -34,18 +29,19 @@ class WorkflowEngine:
         """
 
         try:
-            # 2. LLM 호출
-            raw_response = self.client.generate_text(user_prompt, system_message=system_message)
+            # OpenRouter 모델 지정 (openai/gpt-4o 사용)
+            raw_response = self.client.generate_text(
+                user_prompt, 
+                system_message=system_message,
+                model="openai/gpt-4o" 
+            )
             
-            # 3. JSON 파싱
             json_str = raw_response.strip().replace("```json", "").replace("```", "")
             expanded_content = json.loads(json_str)
             
-            # 기존 step 정보에 상세 정보를 병합하여 반환
             return {**step_info, **expanded_content}
 
         except Exception as e:
-            # 에러 시 기본 정보만 반환
             return {
                 **step_info,
                 "detailed_guide": "상세 가이드를 불러오는 중 오류가 발생했습니다.",
@@ -54,25 +50,7 @@ class WorkflowEngine:
             }
 
     def process_full_workflow(self, task_description: str, workflow_steps: list) -> list:
-        """
-        병렬 처리(Thread)를 사용하여 모든 단계의 상세 내용을 동시에 생성합니다.
-        속도가 N배 빨라집니다.
-        """
-        detailed_workflow = []
-        
-        # ThreadPoolExecutor를 사용하여 병렬 실행
+        # 병렬 처리 로직은 완벽합니다! 그대로 둡니다.
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
-            # 각 단계별로 작업을 등록 (Future 객체 생성)
-            # lambda를 쓰거나, map을 쓸 수도 있지만 가독성을 위해 리스트 컴프리헨션 사용
-            future_to_step = {
-                executor.submit(self.expand_step_content, task_description, step): step 
-                for step in workflow_steps
-            }
-            
-            # 작업이 완료되는 대로 결과를 수집 (순서 보장을 위해 순차적으로 접근하는 방법도 있지만, 여기선 단순 수집)
-            # 순서를 보장하려면 map을 쓰는 것이 좋습니다.
             results = executor.map(lambda step: self.expand_step_content(task_description, step), workflow_steps)
-            
-            detailed_workflow = list(results)
-        
-        return detailed_workflow
+            return list(results)
