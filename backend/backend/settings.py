@@ -27,6 +27,11 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'hsryu.pe.kr']
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'https://hsryu.pe.kr',
+    'https://hsryu.pe.kr:10443'
+]
 
 # Application definition
 
@@ -128,3 +133,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ],
+}
+

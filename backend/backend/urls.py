@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     #path('api/', include('core.urls')),
     path('api/OpenRouter/', include('OpenRouter.urls')),
+    path('api/user/', include('user.urls')),
 ]
